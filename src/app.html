@@ -5,7 +5,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		%sveltekit.head%
 	</head>
-	<body data-sveltekit-preload-data="hover">
+	<!--the "h-full" fixes tailwind :/ -->
+	<body data-sveltekit-preload-data="hover" class="h-full">
+		<!-- oh, you can see it? -->
+		<!-- welcome to StellarDragoon :) -->
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

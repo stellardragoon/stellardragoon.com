@@ -5,7 +5,14 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import glsl from 'vite-plugin-glsl'
 
 export default defineConfig({
-	plugins: [glsl(), tailwindcss(), sveltekit()],
+	plugins: [
+		glsl({
+			minify: true,
+			watch: true
+		}),
+		tailwindcss(),
+		sveltekit()
+	],
 
 	server: {
 		proxy: {
