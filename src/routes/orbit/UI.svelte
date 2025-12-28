@@ -1,61 +1,246 @@
 <script lang="ts">
-	import { blur } from 'svelte/transition'
+	import { STATE } from './state.svelte'
+	import ShaderEffect from '$lib/effects/custom/ShaderEffect.svelte'
 
-	import type { _State } from './state.svelte'
+	let draggingIndex: number | null = $state(null)
 
-	const { State = $bindable() }: { State: _State } = $props()
+	function addNewEffect() {
+		STATE.postprocessings.unshift({
+			id: 'custom-shader-' + Date.now(),
+			enabled: true,
+			component: ShaderEffect,
+			props: {
+				uniforms: { uTime: 0 },
+				fragmentShader: `void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
+	outputColor = inputColor * vec4(uv, 1.0, 1.0);
+}`
+			}
+		})
+	}
 
-	let dialog: HTMLDialogElement | undefined = $state()
+	function getProps(key: string, value: any) {
+		const k = key.toLowerCase()
+		let min = 0
+		let max = 1
+		let step = 0.01
+
+		if (['angle', 'rotation'].some(s => k.includes(s))) {
+			min = -Math.PI
+			max = Math.PI
+		} else if (k.includes('hue')) {
+			max = Math.PI * 2
+		} else if (['offset', 'brightness', 'contrast', 'saturation'].some(s => k.includes(s))) {
+			min = -1
+			max = 1
+		} else if (
+			[
+				'granularity',
+				'levels',
+				'bits',
+				'samples',
+				'resolution',
+				'dtsize',
+				'fontsize',
+				'cellsize'
+			].some(s => k.includes(s))
+		) {
+			max = 64
+			step = 1
+			if (k.includes('resolution')) max = 2
+			if (k.includes('samples')) max = 64
+			if (k.includes('fontsize')) max = 100
+		} else if (['intensity', 'scale', 'amount', 'strength'].some(s => k.includes(s))) {
+			max = 5
+		}
+
+		if (typeof value === 'number') {
+			if (value < min) min = value * 2
+			if (value > max) max = value * 2
+		}
+
+		return { min, max, step }
+	}
+
+	function dragStart(e: DragEvent, index: number) {
+		draggingIndex = index
+		if (e.dataTransfer) {
+			e.dataTransfer.effectAllowed = 'move'
+		}
+	}
+
+	function dragOver(e: DragEvent, index: number) {
+		e.preventDefault()
+		if (draggingIndex === null || draggingIndex === index) return
+
+		const item = STATE.postprocessings[draggingIndex]
+		STATE.postprocessings.splice(draggingIndex, 1)
+		STATE.postprocessings.splice(index, 0, item)
+		draggingIndex = index
+	}
+
+	function dragEnd() {
+		draggingIndex = null
+	}
 </script>
 
-<div class="absolute top-4 left-4 z-10 font-mono text-white">
-	<div>Object 001</div>
-	<div>Rotation: {State.rotation.current.toFixed(2)}</div>
-	<div>Target: {State.rotation.target.toFixed(2)}</div>
+<div
+	class="no-scrollbar absolute top-4 left-4 z-10 max-h-[95vh] w-96 overflow-y-auto font-mono text-sm text-white"
+>
+	<div>&lt;EffectComposer&gt;</div>
+	<button class="pl-4 text-left text-green-400 hover:underline" onclick={addNewEffect}>
+		[add new effect+]
+	</button>
+	<div class="flex flex-col pl-4">
+		{#each STATE.postprocessings as effect, index (effect.id)}
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div
+				class="cursor-move"
+				draggable="true"
+				ondragstart={e => dragStart(e, index)}
+				ondragover={e => dragOver(e, index)}
+				ondragend={dragEnd}
+			>
+				{#if !effect.enabled}
+					<button
+						class="text-left opacity-50 hover:underline"
+						onclick={() => (effect.enabled = true)}
+					>
+						&lt;{effect.id} ... /&gt;
+					</button>
+				{:else}
+					<button class="text-left hover:underline" onclick={() => (effect.enabled = false)}>
+						&lt;{effect.id}
+					</button>
+
+					<div class="flex flex-col pl-4">
+						{#each Object.entries(effect.props as any) as [key, value]}
+							<div class="flex items-start gap-1">
+								<span class="shrink-0">{key}=</span>
+
+								{#if key === 'fragmentShader'}
+									<div class="w-full">
+										<textarea
+											bind:value={(effect.props as any)[key]}
+											class="h-32 w-full border border-white/30 bg-black/50 p-1 font-mono text-xs outline-none {(
+												effect as any
+											).error
+												? 'border-red-500 bg-red-900/20'
+												: ''}"
+											spellcheck="false"
+										></textarea>
+										{#if (effect as any).error}
+											<div class="text-xs whitespace-pre-wrap text-red-400">
+												{(effect as any).error}
+											</div>
+										{/if}
+									</div>
+								{:else if typeof value === 'number' || value === null}
+									{@const props = getProps(key, value)}
+									<div class="flex flex-1 items-center gap-2">
+										<input
+											type="number"
+											bind:value={(effect.props as any)[key]}
+											step={props.step}
+											class="w-16 border-b border-white/30 bg-transparent text-right outline-none"
+										/>
+										<input
+											type="range"
+											bind:value={(effect.props as any)[key]}
+											min={props.min}
+											max={props.max}
+											step={props.step}
+											class="h-1 w-24 cursor-pointer appearance-none rounded-lg bg-white/20 accent-white"
+										/>
+									</div>
+								{:else if typeof value === 'boolean'}
+									<input type="checkbox" bind:checked={(effect.props as any)[key]} />
+								{:else if typeof value === 'string'}
+									<input
+										type="text"
+										bind:value={(effect.props as any)[key]}
+										class="w-full border-b border-white/30 bg-transparent outline-none"
+									/>
+								{:else if value && typeof value === 'object'}
+									<div class="flex flex-wrap items-center gap-2">
+										{#if 'x' in value}
+											<span>{['delay', 'duration', 'strength'].includes(key) ? 'min' : 'x'}</span>
+											<input
+												type="number"
+												bind:value={(value as any).x}
+												step="0.01"
+												class="w-12 border-b border-white/30 bg-transparent outline-none"
+											/>
+										{/if}
+										{#if 'y' in value}
+											<span>{['delay', 'duration', 'strength'].includes(key) ? 'max' : 'y'}</span>
+											<input
+												type="number"
+												bind:value={(value as any).y}
+												step="0.01"
+												class="w-12 border-b border-white/30 bg-transparent outline-none"
+											/>
+										{/if}
+										{#if 'z' in value}
+											<span>z</span>
+											<input
+												type="number"
+												bind:value={(value as any).z}
+												step="0.01"
+												class="w-12 border-b border-white/30 bg-transparent outline-none"
+											/>
+										{/if}
+										{#if 'r' in value && 'g' in value && 'b' in value}
+											<span>r</span>
+											<input
+												type="number"
+												bind:value={(value as any).r}
+												step="0.01"
+												class="w-10 border-b border-white/30 bg-transparent outline-none"
+											/>
+											<span>g</span>
+											<input
+												type="number"
+												bind:value={(value as any).g}
+												step="0.01"
+												class="w-10 border-b border-white/30 bg-transparent outline-none"
+											/>
+											<span>b</span>
+											<input
+												type="number"
+												bind:value={(value as any).b}
+												step="0.01"
+												class="w-10 border-b border-white/30 bg-transparent outline-none"
+											/>
+										{/if}
+									</div>
+								{:else}
+									<span>{String(value)}</span>
+								{/if}
+							</div>
+						{/each}
+					</div>
+					<div>/&gt;</div>
+				{/if}
+			</div>
+		{/each}
+	</div>
+	<div>&lt;/EffectComposer&gt;</div>
+
+	<div class="mt-4 whitespace-pre text-gray-500">
+		&lt;!-- 遊び方：<br /> オンにしたいエフェクトをクリックして<br /> 値をいじりましょう <br />
+		何か動作が変だったらリフレッシュしましょう<br /> --&gt;
+	</div>
+	<div class="mt-4 whitespace-pre text-gray-500">
+		&lt;!-- Removed Effects:<br /> god-rays lens-flare lut selective-bloom ssao texture<br /> --&gt;
+	</div>
 </div>
 
-{#if !State.isModalOpened}
-	<button
-		class="absolute top-4 right-4 z-10 transition-transform duration-200 ease-out hover:scale-125"
-		onclick={() => {
-			dialog?.showModal()
-			State.isModalOpened = true
-		}}
-		transition:blur={{ duration: 300 }}
-	>
-		<img src="/src/lib/assets/favicon.svg" alt="Toggle Right Pane" class="h-16 w-16" />
-	</button>
-{/if}
-
-<!-- <dialog> defaults to left: 0. need to explicitly set left-auto -->
-<dialog
-	bind:this={dialog}
-	onclose={() => (State.isModalOpened = false)}
-	onclick={e => {
-		if (e.target === dialog) dialog?.close()
-	}}
-	class="fixed top-0 right-0 left-auto m-0 h-full max-h-none w-80 border-l border-white/10 bg-zinc-900/95 p-6 text-white focus:outline-none"
->
-	<div class="flex flex-col gap-6">
-		<div class="border border-white/10 bg-white/5 p-4">
-			<div class="mb-3 flex items-baseline justify-between font-mono">
-				<div class="text-sm text-white/70">Rotation</div>
-				<div class="text-sm text-white tabular-nums">
-					{State.rotation.current.toFixed(2)}
-					<span class="text-white/40"> → {State.rotation.target.toFixed(2)}</span>
-				</div>
-			</div>
-
-			<input
-				class="w-full accent-white"
-				type="range"
-				min="0"
-				max="10"
-				step="0.01"
-				value={State.rotation.target}
-				oninput={e => State.rotation.set(parseFloat((e.currentTarget as HTMLInputElement).value))}
-				aria-label="Rotation"
-			/>
-		</div>
-	</div>
-</dialog>
+<style>
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+	.no-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+</style>

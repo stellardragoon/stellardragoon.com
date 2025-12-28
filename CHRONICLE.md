@@ -4,6 +4,19 @@
 
 sorted from newest.
 
+### sunday 28122025
+
+コード風のpostprocessingエディタを実装してみた\
+リアルタイムでシェーダー書けるのすご\
+
+/orbit 実験場が割と使える\
+これでいろんな実験ができる
+
+遊びすぎたぁぁ
+
+あ、カスタムfragmentシェーダーをロードできる汎用的なEffectComposerコンポネント作った\
+$lib/effects/custom/ShaderEffect.svelteにあるから、是非。
+
 ### saturday 27122025
 
 Theatre.jsで演出させる前に、できるだけたくさんの「武器」（アセット）を実験しておきたい\

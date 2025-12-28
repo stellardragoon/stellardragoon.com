@@ -7,8 +7,7 @@
 
 	import theatreconfig from './Orbit.theatre-project-state.json' // これ無いとエラー
 	import UI from './UI.svelte'
-
-	import { State } from './state.svelte'
+	import { PerfMonitor } from '@threlte/extras'
 </script>
 
 <svelte:head>
@@ -19,19 +18,15 @@
 <Studio enabled={dev} hide={true} />
 
 <div class="h-screen w-full bg-[#050505]">
-	<div
-		class={[
-			State.isModalOpened ? '-translate-x-36' : '',
-			'h-full w-full transition-transform duration-500 ease-out'
-		]}
-	>
+	<div class="h-full w-full">
 		<Canvas>
+			<PerfMonitor anchorX="right" anchorY="bottom" />
 			<Project name="Orbit" config={{ state: theatreconfig }}>
 				<Sheet name="Object-001">
-					<Scene {State} />
+					<Scene />
 				</Sheet>
 			</Project>
 		</Canvas>
 	</div>
-	<UI {State} />
+	<UI />
 </div>
