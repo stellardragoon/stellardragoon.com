@@ -4,7 +4,7 @@
 
 	let canvas: HTMLCanvasElement
 	let ctx: CanvasRenderingContext2D | null
-	let bitmap: HTMLImageElement | null = null
+	let bitmap: CanvasImageSource | null = null
 
 	const draw = () => {
 		if (!ctx || !canvas || !bitmap) return
@@ -18,9 +18,19 @@
 		ctx.scale(dpr, dpr)
 		ctx.clearRect(0, 0, rect.width, rect.height)
 
-		const scale = Math.min(rect.width / bitmap.width, rect.height / bitmap.height)
-		const w = bitmap.width * scale
-		const h = bitmap.height * scale
+		// CanvasImageSource has width/height but TS might complain if it's not specific.
+		// ImageBitmap has width/height. HTMLImageElement has width/height.
+		// SVGImageElement has width/height.
+		// VideoFrame has codedWidth/codedHeight.
+		// Let's cast to any or check type if needed, but for now let's assume it has width/height.
+		// Actually CanvasImageSource doesn't guarantee width/height properties on the interface itself in all cases (like VideoFrame uses codedWidth).
+		// But here we expect ImageBitmap or HTMLImageElement.
+		const width = 'width' in bitmap ? (bitmap.width as number) : 0
+		const height = 'height' in bitmap ? (bitmap.height as number) : 0
+
+		const scale = Math.min(rect.width / width, rect.height / height)
+		const w = width * scale
+		const h = height * scale
 		const x = (rect.width - w) / 2
 		const y = (rect.height - h) / 2
 
@@ -30,14 +40,11 @@
 	$effect(() => {
 		ctx = canvas.getContext('2d')
 
-		src('stellardragoon-logo-banner-lightanddarkmode.svg')
-			.then(url => {
-				return new Promise<HTMLImageElement>((resolve, reject) => {
-					const img = new Image()
-					img.onload = () => resolve(img)
-					img.onerror = reject
-					img.src = url
-				})
+		// Use PNG to avoid network tab leakage (SVG requires blob: URL which leaks)
+		src('stellardragoon-logo-banner-lightanddarkmode.png')
+			.then(async data => {
+				if (data instanceof ImageBitmap) return data
+				throw new Error('Expected ImageBitmap for PNG')
 			})
 			.then(img => {
 				bitmap = img

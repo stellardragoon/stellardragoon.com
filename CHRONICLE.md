@@ -4,6 +4,17 @@
 
 sorted from newest.
 
+### monday 29122025
+
+アセットの暗号化システムと戦った\
+&lt;canvas&gt;でSVGを表示しようとするとnetwork tabにデータが漏れる問題があった\
+これはブラウザの限界らしくて、ここはPNGやJPEGを使って妥協することにした\
+SVGはThree.jsのテクスチャとして使う分には問題ないので、Three.js内で使う分にはSVGを使うことにする
+
+src()を使うには注意する\
+返された生のデータをsrc=とかurl=とかに一旦blob（またはbase64も）にして渡すとnetwork tabにデータが漏れるから\
+src()は生のデータが直接使えるところだけで使うこと
+
 ### sunday 28122025
 
 コード風のpostprocessingエディタを実装してみた\

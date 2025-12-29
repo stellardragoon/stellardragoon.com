@@ -61,9 +61,16 @@
 	})
 
 	// --- Loader ---
-	const loader = useLoader(SVGLoader)
-	const logoPromise = src('stellardragoon-logo-lightmode.svg').then(async logoSrc => {
-		const data = await loader.load(logoSrc)
+	const logoPromise = src('stellardragoon-logo-lightmode.svg').then(async logoData => {
+		let text = ''
+		if (logoData instanceof ArrayBuffer) {
+			text = new TextDecoder().decode(logoData)
+		} else {
+			throw new Error('Expected ArrayBuffer for SVG')
+		}
+
+		const loader = new SVGLoader()
+		const data = loader.parse(text)
 		return data.paths.flatMap(path => {
 			const shapes = SVGLoader.createShapes(path)
 			return shapes.map(shape => ({ shape, color: path.color }))
