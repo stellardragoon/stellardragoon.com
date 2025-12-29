@@ -3,7 +3,7 @@
 	import { Project, Sheet, Studio } from '@threlte/theatre'
 	import Scene from './Scene.svelte'
 
-	import { dev } from '$app/environment'
+	// import { dev } from '$app/environment'
 
 	import theatreconfig from './Orbit.theatre-project-state.json' // これ無いとエラー
 	import UI from './UI.svelte'
@@ -15,7 +15,7 @@
 	<meta name="description" content="ステラグーンの軌道上実験場" />
 </svelte:head>
 
-<Studio enabled={dev} hide={true} />
+<Studio enabled={true} hide={true} />
 
 <div class="h-screen w-full bg-[#050505]">
 	<div class="h-full w-full">

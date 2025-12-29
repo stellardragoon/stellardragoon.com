@@ -82,9 +82,15 @@
 	}))
 </script>
 
-<T.PerspectiveCamera makeDefault position={[10, 0, 10]} oncreate={ref => ref.lookAt(0, 0, 0)}>
-	<OrbitControls enableDamping />
-</T.PerspectiveCamera>
+<SheetObject key="Camera">
+	{#snippet children({ Transform })}
+		<Transform>
+			<T.PerspectiveCamera makeDefault position={[10, 0, 10]} oncreate={ref => ref.lookAt(0, 0, 0)}>
+				<OrbitControls enableDamping />
+			</T.PerspectiveCamera>
+		</Transform>
+	{/snippet}
+</SheetObject>
 
 {#key composerKey}
 	<EffectComposer>
@@ -98,44 +104,78 @@
 	</EffectComposer>
 {/key}
 
-<T.Mesh scale={80}>
-	<T.SphereGeometry args={[1, 64, 64]} />
-	<T.ShaderMaterial
-		fragmentShader={bgFragmentShader}
-		vertexShader={bgVertexShader}
-		uniforms={bgUniforms}
-		side={BackSide}
-	/>
-</T.Mesh>
+<SheetObject key="Background">
+	{#snippet children({ Transform })}
+		<Transform>
+			<T.Mesh scale={80}>
+				<T.SphereGeometry args={[1, 64, 64]} />
+				<T.ShaderMaterial
+					fragmentShader={bgFragmentShader}
+					vertexShader={bgVertexShader}
+					uniforms={bgUniforms}
+					side={BackSide}
+				/>
+			</T.Mesh>
+		</Transform>
+	{/snippet}
+</SheetObject>
 
-<T.FogExp2 color="#050011" density={0.02} />
+<SheetObject key="Fog">
+	{#snippet children({ Sync })}
+		<T.FogExp2 color="#050011" density={0.02}>
+			<Sync color density />
+		</T.FogExp2>
+	{/snippet}
+</SheetObject>
 
-<T.DirectionalLight position={[10, 10, 10]} intensity={0.5} />
-<T.AmbientLight intensity={0.2} />
+<SheetObject key="DirectionalLight">
+	{#snippet children({ Transform, Sync })}
+		<Transform>
+			<T.DirectionalLight position={[10, 10, 10]} intensity={0.5}>
+				<Sync intensity />
+			</T.DirectionalLight>
+		</Transform>
+	{/snippet}
+</SheetObject>
+<SheetObject key="AmbientLight">
+	{#snippet children({ Sync })}
+		<T.AmbientLight intensity={0.2}>
+			<Sync intensity />
+		</T.AmbientLight>
+	{/snippet}
+</SheetObject>
 
-<T.PointLight
-	position={[light1Pos.x, light1Pos.y, light1Pos.z]}
-	intensity={15}
-	distance={20}
-	decay={2}
-	color="#00ffff"
-/>
-<T.Mesh position={[light1Pos.x, light1Pos.y, light1Pos.z]}>
-	<T.SphereGeometry args={[0.2]} />
-	<T.MeshBasicMaterial color="#00ffff" toneMapped={false} />
-</T.Mesh>
+<SheetObject key="Light1">
+	{#snippet children({ Transform, Sync })}
+		<Transform>
+			<T.Group position={[light1Pos.x, light1Pos.y, light1Pos.z]}>
+				<T.PointLight intensity={15} distance={20} decay={2} color="#00ffff">
+					<Sync intensity distance decay color />
+				</T.PointLight>
+				<T.Mesh>
+					<T.SphereGeometry args={[0.2]} />
+					<T.MeshBasicMaterial color="#00ffff" toneMapped={false} />
+				</T.Mesh>
+			</T.Group>
+		</Transform>
+	{/snippet}
+</SheetObject>
 
-<T.PointLight
-	position={[light2Pos.x, light2Pos.y, light2Pos.z]}
-	intensity={15}
-	distance={20}
-	decay={2}
-	color="#ff00aa"
-/>
-<T.Mesh position={[light2Pos.x, light2Pos.y, light2Pos.z]}>
-	<T.SphereGeometry args={[0.2]} />
-	<T.MeshBasicMaterial color="#ff00aa" toneMapped={false} />
-</T.Mesh>
+<SheetObject key="Light2">
+	{#snippet children({ Transform, Sync })}
+		<Transform>
+			<T.Group position={[light2Pos.x, light2Pos.y, light2Pos.z]}>
+				<T.PointLight intensity={15} distance={20} decay={2} color="#ff00aa">
+					<Sync intensity distance decay color />
+				</T.PointLight>
+				<T.Mesh>
+					<T.SphereGeometry args={[0.2]} />
+					<T.MeshBasicMaterial color="#ff00aa" toneMapped={false} />
+				</T.Mesh>
+			</T.Group>
+		</Transform>
+	{/snippet}
+</SheetObject>
 
 <T.Group position={[0, -8, 0]}>
 	<Grid
@@ -167,55 +207,76 @@
 </T.Group>
 
 {#each Array(8) as _, i}
-	<Float speed={1 + i * 0.2} rotationIntensity={0.5} floatIntensity={3}>
-		<T.Mesh
-			position={[
-				MathUtils.randFloatSpread(20),
-				MathUtils.randFloatSpread(15),
-				MathUtils.randFloat(-5, -20)
-			]}
-		>
-			<T.IcosahedronGeometry args={[MathUtils.randFloat(0.5, 1.5), 0]} />
-			<T.MeshStandardMaterial
-				color="#111"
-				emissive={i % 2 === 0 ? '#00ffff' : '#ff00aa'}
-				emissiveIntensity={2}
-				wireframe={true}
-				toneMapped={false}
-			/>
-		</T.Mesh>
-	</Float>
+	<SheetObject key={'FloatingObject-' + i}>
+		{#snippet children({ Transform })}
+			<Transform>
+				<Float speed={1 + i * 0.2} rotationIntensity={0.5} floatIntensity={3}>
+					<T.Mesh
+						position={[
+							MathUtils.randFloatSpread(20),
+							MathUtils.randFloatSpread(15),
+							MathUtils.randFloat(-5, -20)
+						]}
+					>
+						<T.IcosahedronGeometry args={[MathUtils.randFloat(0.5, 1.5), 0]} />
+						<T.MeshStandardMaterial
+							color="#111"
+							emissive={i % 2 === 0 ? '#00ffff' : '#ff00aa'}
+							emissiveIntensity={2}
+							wireframe={true}
+							toneMapped={false}
+						/>
+					</T.Mesh>
+				</Float>
+			</Transform>
+		{/snippet}
+	</SheetObject>
 {/each}
 
-<T.Group rotation.z={ringRotation} rotation.x={Math.PI / 4} position={[0, 0, -2]}>
-	<T.Mesh>
-		<T.TorusGeometry args={[8, 0.02, 16, 100]} />
-		<T.MeshBasicMaterial color="#444" transparent opacity={0.3} />
-	</T.Mesh>
-	<T.Mesh rotation.y={ringRotation * 1.5}>
-		<T.TorusGeometry args={[7.5, 0.05, 16, 100]} />
-		<T.MeshStandardMaterial
-			color="#000"
-			emissive="#ff00aa"
-			emissiveIntensity={4}
-			toneMapped={false}
-		/>
-	</T.Mesh>
-</T.Group>
-
-{#await logoPromise then parts}
-	<SheetObject key="Box">
-		{#snippet children({ Transform, Sync })}
-			<Transform>
-				<T.Mesh
-					rotation.y={STATE.rotation.current}
-					rotation.x={STATE.rotation.current}
-					position={[-5, 2, 0]}
-				>
-					<T.BoxGeometry args={[1, 1, 1]} />
-					<T.ShaderMaterial {fragmentShader} {vertexShader} {uniforms}><Sync /></T.ShaderMaterial>
+<SheetObject key="Rings">
+	{#snippet children({ Transform })}
+		<Transform>
+			<T.Group rotation.z={ringRotation} rotation.x={Math.PI / 4} position={[0, 0, -2]}>
+				<T.Mesh>
+					<T.TorusGeometry args={[8, 0.02, 16, 100]} />
+					<T.MeshBasicMaterial color="#444" transparent opacity={0.3} />
 				</T.Mesh>
+				<T.Mesh rotation.y={ringRotation * 1.5}>
+					<T.TorusGeometry args={[7.5, 0.05, 16, 100]} />
+					<T.MeshStandardMaterial
+						color="#000"
+						emissive="#ff00aa"
+						emissiveIntensity={4}
+						toneMapped={false}
+					/>
+				</T.Mesh>
+			</T.Group>
+		</Transform>
+	{/snippet}
+</SheetObject>
 
+<SheetObject key="Box">
+	{#snippet children({ Transform, Sync })}
+		<Transform>
+			<T.Mesh
+				rotation.y={STATE.rotation.current}
+				rotation.x={STATE.rotation.current}
+				position={[0, 0, 0]}
+			>
+				<T.BoxGeometry args={[1, 1, 1]} />
+				<T.ShaderMaterial {fragmentShader} {vertexShader} {uniforms}></T.ShaderMaterial><Sync
+					rotation
+					position
+				/>
+			</T.Mesh>
+		</Transform>
+	{/snippet}
+</SheetObject>
+
+<SheetObject key="Logo">
+	{#snippet children({ Transform, Sync })}
+		{#await logoPromise then parts}
+			<Transform>
 				<T.Group scale={0.005} scale.y={-0.005} position={[-5, 4, 0]}>
 					{#each parts as { shape, color }}
 						<T.Mesh>
@@ -243,6 +304,6 @@
 					{/each}
 				</T.Group>
 			</Transform>
-		{/snippet}
-	</SheetObject>
-{/await}
+		{/await}
+	{/snippet}
+</SheetObject>
