@@ -1,12 +1,13 @@
 <script lang="ts">
+	import SecureImg from '$lib/components/SecureImg.svelte'
 	import { src } from '$lib/utils/deseal'
 
 	let canvas: HTMLCanvasElement
 	let ctx: CanvasRenderingContext2D | null
-	let loadedImage: HTMLImageElement | null = null
+	let bitmap: HTMLImageElement | null = null
 
 	const draw = () => {
-		if (!ctx || !canvas || !loadedImage) return
+		if (!ctx || !canvas || !bitmap) return
 
 		const dpr = window.devicePixelRatio || 1
 		const rect = canvas.getBoundingClientRect()
@@ -17,29 +18,34 @@
 		ctx.scale(dpr, dpr)
 		ctx.clearRect(0, 0, rect.width, rect.height)
 
-		const scale = Math.min(
-			rect.width / loadedImage.naturalWidth,
-			rect.height / loadedImage.naturalHeight
-		)
-		const w = loadedImage.naturalWidth * scale
-		const h = loadedImage.naturalHeight * scale
+		const scale = Math.min(rect.width / bitmap.width, rect.height / bitmap.height)
+		const w = bitmap.width * scale
+		const h = bitmap.height * scale
 		const x = (rect.width - w) / 2
 		const y = (rect.height - h) / 2
 
-		ctx.drawImage(loadedImage, x, y, w, h)
+		ctx.drawImage(bitmap, x, y, w, h)
 	}
 
 	$effect(() => {
 		ctx = canvas.getContext('2d')
 
-		const img = new Image()
-		src('stellardragoon-logo-banner-lightanddarkmode.svg').then((url) => {
-			img.src = url
-			img.onload = () => {
-				loadedImage = img
+		src('stellardragoon-logo-banner-lightanddarkmode.svg')
+			.then(url => {
+				return new Promise<HTMLImageElement>((resolve, reject) => {
+					const img = new Image()
+					img.onload = () => resolve(img)
+					img.onerror = reject
+					img.src = url
+				})
+			})
+			.then(img => {
+				bitmap = img
 				draw()
-			}
-		})
+			})
+			.catch(err => {
+				console.error('Failed to load secure image', err)
+			})
 
 		const handleResize = () => requestAnimationFrame(draw)
 		window.addEventListener('resize', handleResize)

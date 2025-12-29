@@ -22,7 +22,7 @@ export default defineConfig({
 			'/r2-tunnel': {
 				target: 'https://artifacts.stellardragoon.com',
 				changeOrigin: true,
-				rewrite: (path) => path.replace(/^\/r2-tunnel/, '')
+				rewrite: path => path.replace(/^\/r2-tunnel/, '')
 			}
 		}
 	},
