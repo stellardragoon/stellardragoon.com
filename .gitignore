@@ -25,3 +25,5 @@ vite.config.ts.timestamp-*
 # sanctuary
 /sanctuary
 /src/lib/workers/deseal.worker.ts
+
+AGENTS.md

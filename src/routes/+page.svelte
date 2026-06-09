@@ -1,68 +1,84 @@
+<!--
+  Home page — assembles all section components.
+  Sections use natural content height unless explicitly sized.
+  Pinned sections specify pinDistance for scroll-linked choreography.
+  Each section reads scrollState.of(id) + tween() for imperative animations.
+-->
 <script lang="ts">
-	import SecureImg from '$lib/components/SecureImg.svelte'
-	import { src } from '$lib/utils/deseal'
-
-	let canvas: HTMLCanvasElement
-	let ctx: CanvasRenderingContext2D | null
-	let bitmap: CanvasImageSource | null = null
-
-	const draw = () => {
-		if (!ctx || !canvas || !bitmap) return
-
-		const dpr = window.devicePixelRatio || 1
-		const rect = canvas.getBoundingClientRect()
-
-		canvas.width = rect.width * dpr
-		canvas.height = rect.height * dpr
-
-		ctx.scale(dpr, dpr)
-		ctx.clearRect(0, 0, rect.width, rect.height)
-
-		// CanvasImageSource has width/height but TS might complain if it's not specific.
-		// ImageBitmap has width/height. HTMLImageElement has width/height.
-		// SVGImageElement has width/height.
-		// VideoFrame has codedWidth/codedHeight.
-		// Let's cast to any or check type if needed, but for now let's assume it has width/height.
-		// Actually CanvasImageSource doesn't guarantee width/height properties on the interface itself in all cases (like VideoFrame uses codedWidth).
-		// But here we expect ImageBitmap or HTMLImageElement.
-		const width = 'width' in bitmap ? (bitmap.width as number) : 0
-		const height = 'height' in bitmap ? (bitmap.height as number) : 0
-
-		const scale = Math.min(rect.width / width, rect.height / height)
-		const w = width * scale
-		const h = height * scale
-		const x = (rect.width - w) / 2
-		const y = (rect.height - h) / 2
-
-		ctx.drawImage(bitmap, x, y, w, h)
-	}
-
-	$effect(() => {
-		ctx = canvas.getContext('2d')
-
-		// Use PNG to avoid network tab leakage (SVG requires blob: URL which leaks)
-		src('stellardragoon-logo-banner-lightanddarkmode.png')
-			.then(async data => {
-				if (data instanceof ImageBitmap) return data
-				throw new Error('Expected ImageBitmap for PNG')
-			})
-			.then(img => {
-				bitmap = img
-				draw()
-			})
-			.catch(err => {
-				console.error('Failed to load secure image', err)
-			})
-
-		const handleResize = () => requestAnimationFrame(draw)
-		window.addEventListener('resize', handleResize)
-
-		return () => {
-			window.removeEventListener('resize', handleResize)
-		}
-	})
+	import ScrollSection from '$lib/components/ui/ScrollSection.svelte'
+	import TextBlock from '$lib/components/ui/TextBlock.svelte'
+	import HeroSection from '$lib/components/home/HeroSection.svelte'
+	import MembersSection from '$lib/components/home/MembersSection.svelte'
+	import WorldviewSection from '$lib/components/home/WorldviewSection.svelte'
+	import WorksSection from '$lib/components/home/WorksSection.svelte'
+	import FooterLinks from '$lib/components/home/FooterLinks.svelte'
+	import { prologueContent, overviewBlocks } from '$lib/data/content'
 </script>
 
-<div class="h-full w-full bg-neutral-900">
-	<canvas bind:this={canvas} class="fixed top-0 left-0 h-full w-full"></canvas>
-</div>
+<main>
+	<ScrollSection id="hero" height="100dvh">
+		<HeroSection />
+	</ScrollSection>
+
+	<div class="section-gap"></div>
+
+	<ScrollSection id="prologue">
+		<TextBlock
+			prose
+			heading={prologueContent.title}
+			lines={prologueContent.paragraphLines}
+			pulseLast={true}
+		/>
+	</ScrollSection>
+
+	<div class="section-gap"></div>
+
+	<ScrollSection id="overview">
+		<TextBlock prose heading={overviewBlocks[0]!.heading} lines={[overviewBlocks[0]!.body]} />
+	</ScrollSection>
+
+	<div class="section-gap"></div>
+
+	<ScrollSection id="members">
+		<MembersSection />
+	</ScrollSection>
+
+	<div class="section-gap"></div>
+
+	<ScrollSection id="worldview">
+		<WorldviewSection />
+	</ScrollSection>
+
+	<div class="section-gap"></div>
+
+	<ScrollSection id="works">
+		<WorksSection />
+	</ScrollSection>
+
+	<div class="section-gap"></div>
+
+	<ScrollSection id="footer" height="100dvh">
+		<FooterLinks />
+	</ScrollSection>
+</main>
+
+<style>
+	main {
+		/* Constrain content to 16:9 of viewport height — handles ultrawide (32:9 etc).
+		   Background fills the full viewport separately.
+		   --full-height: single source of truth for "one viewport height" within the
+		   content column. Use var(--full-height) instead of 100vh in child components
+		   so this can be swapped to 100dvh or adjusted without touching each section.
+		   container-type: inline-size — enables cqw/cqi units inside children so they
+		   size relative to this constrained column, not the full viewport width. */
+		max-width: calc(100vh * 16 / 9);
+		margin-inline: auto;
+		position: relative;
+		--full-height: 100dvh;
+		container-type: inline-size;
+	}
+
+	.section-gap {
+		height: calc(var(--full-height) * 0.8);
+	}
+</style>

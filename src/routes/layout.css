@@ -1,7 +1,158 @@
-@import 'tailwindcss';
-/* @plugin '@tailwindcss/typography'; */
+/* ── Fonts ─────────────────────────────────────────────────── */
+@font-face {
+	font-family: 'HakkouMincho';
+	src:
+		url('/fonts/HakkouMincho.woff2') format('woff2'),
+		url('/fonts/HakkouMincho.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
 
-@theme {
+@font-face {
+	font-family: 'HarenosoraMinho';
+	src:
+		url('/fonts/Harenosora.woff2') format('woff2'),
+		url('/fonts/Harenosora.otf') format('opentype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* ── CSS Custom Properties ─────────────────────────────────── */
+:root {
+	/* Colors */
 	--color-black: #000000;
 	--color-white: #ffffff;
+	--color-base-dark: #0a0b10;
+	--color-base-light: #f4f5f7;
+	--color-accent-yellow: #ffe800;
+	--color-accent-cyan: #00f0ff;
+	--color-ui-gray: #2a2b30;
+	--color-ui-text: #8e929f;
+
+	/* Fonts */
+	--font-default: 'HarenosoraMinho', 'Noto Serif JP', serif;
+	--font-serif: 'HarenosoraMinho', 'Noto Serif JP', serif;
+	--font-sans: 'HarenosoraMinho', 'Noto Sans JP', sans-serif;
+	--font-display: 'HakkouMincho', 'HarenosoraMinho', serif;
+	--font-mono: 'JetBrains Mono', 'Space Mono', monospace;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	/* 16px for all normal aspect ratios (16:9, 4:3, standard mobile portrait). */
+	font-size: 16px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	/* overflow-x: hidden propagates to the viewport (clip does NOT, per spec).
+	   This prevents horizontal scroll without creating a body scroll container.
+	   overflow-x: clip on body triggered the asymmetric overflow rule making body
+	   a scroll container — in Firefox that displaced position:fixed elements from
+	   the viewport to the body coordinate space. */
+	overflow-x: hidden;
+}
+
+/* Ultra-wide (≥2:1, e.g. 21:9, 32:9):
+   Height is the constraining dimension — scale with vh. */
+@media (min-aspect-ratio: 2/1) {
+	html {
+		font-size: clamp(10px, 1.5vh, 16px);
+	}
+}
+
+/* Extreme portrait (≤3:8 ≈ narrower than 9:24, e.g. 9:32):
+   Width is the constraining dimension — scale with vw.
+   Threshold chosen to exclude normal phones (~9:16 to 9:20). */
+@media (max-aspect-ratio: 3/8) {
+	html {
+		font-size: clamp(10px, 3.5vw, 16px);
+	}
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	background-color: #12264c;
+	color: #ffffff;
+	font-family: var(--font-default);
+}
+
+/* ── Custom clip utilities ─────────────────────────────────── */
+.clip-chamfer {
+	clip-path: polygon(
+		10px 0,
+		100% 0,
+		100% calc(100% - 10px),
+		calc(100% - 10px) 100%,
+		0 100%,
+		0 10px
+	);
+}
+
+.clip-chamfer-reverse {
+	clip-path: polygon(
+		0 0,
+		calc(100% - 10px) 0,
+		100% 10px,
+		100% 100%,
+		10px 100%,
+		0 calc(100% - 10px)
+	);
+}
+
+/* ── Diagonal clip for member split ────────────────────────── */
+.clip-diagonal-left {
+	clip-path: polygon(0 0, 100% 0, 65% 100%, 0 100%);
+}
+
+.clip-diagonal-right {
+	clip-path: polygon(35% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* ── Grid background ───────────────────────────────────────── */
+.bg-grid {
+	background-image: url('data:image/svg+xml,%3Csvg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 120L120 0M-30 30L30 -30M90 150L150 90" stroke=%22%233e4048%22 stroke-width=1/%3E%3C/svg%3E');
+	background-size: 120px 120px;
+	background-position: 0 0;
+	background-repeat: repeat;
+}
+
+/* ── Curtain transition timing ─────────────────────────────── */
+.curtain-transition {
+	transition: transform 0.6s cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* ── Managed asset shimmer placeholder ─────────────────────── */
+.managed-shimmer {
+	background: linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 0.03) 25%,
+		rgba(255, 255, 255, 0.08) 50%,
+		rgba(255, 255, 255, 0.03) 75%
+	);
+	background-size: 200% 100%;
+	animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+	.curtain-transition {
+		transition-duration: 0.01ms !important;
+	}
 }
