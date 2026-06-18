@@ -156,3 +156,24 @@ body {
 		transition-duration: 0.01ms !important;
 	}
 }
+
+/* Ensure the body prevents horizontal scroll during the push animation */
+body {
+	overflow-x: hidden;
+	background: #000; /* Keeps the background behind the shift clean */
+}
+
+/* The main content wrapper that shifts left. 
+   Matches the bezier curve and timing of the navigation drawer.
+*/
+.page-wrapper {
+	transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+	width: 100%;
+	min-height: 100vh;
+}
+
+/* Triggered by the $effect block in Navigation.svelte */
+html.nav-drawer-open .page-wrapper {
+	/* Shifts the page left by the exact width of the drawer */
+	transform: translateX(calc(-1 * min(400px, 85vw)));
+}

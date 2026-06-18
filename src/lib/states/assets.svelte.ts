@@ -167,6 +167,7 @@ class AssetLoader {
 	private _preloadImage(src: string): Promise<void> {
 		return new Promise((resolve, reject) => {
 			const img = new Image()
+			// img.crossOrigin = 'anonymous'
 			const timer = setTimeout(() => resolve(), 10_000) // 10 s timeout
 			img.onload = () => {
 				clearTimeout(timer)

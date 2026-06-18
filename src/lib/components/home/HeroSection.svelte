@@ -11,7 +11,6 @@
 	// ── Scroll-linked animation values ──
 	const p = $derived(scrollState.of('hero'))
 
-	let logoOpacity = $derived(tween(p, { from: 1, to: 0, at: [0.5, 0.9] }))
 	let hintOpacity = $derived(tween(p, { from: 1, to: 0, at: [0.05, 0.25] }))
 
 	let logoElement: HTMLDivElement
@@ -62,7 +61,7 @@
 </script>
 
 <div class="hero">
-	<div class="hero__content" style:opacity={logoOpacity}>
+	<div class="hero__content">
 		<div class="logo-inner" bind:this={logoElement}>
 			<ManagedImage asset={logoAsset} alt={heroConfig.altText} class="hero__logo" />
 		</div>

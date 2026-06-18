@@ -12,54 +12,59 @@
 	import WorldviewSection from '$lib/components/home/WorldviewSection.svelte'
 	import WorksSection from '$lib/components/home/WorksSection.svelte'
 	import FooterLinks from '$lib/components/home/FooterLinks.svelte'
+	import CinematicBars from '$lib/components/home/CinematicBars.svelte'
 	import { prologueContent, overviewBlocks } from '$lib/data/content'
 </script>
 
 <main>
-	<ScrollSection id="hero" height="100dvh">
-		<HeroSection />
-	</ScrollSection>
+	<CinematicBars barHeight="12vh" scrollRange="0px 400px" />
 
-	<div class="section-gap"></div>
+	<div class="page-wrapper">
+		<ScrollSection id="hero" height="100dvh">
+			<HeroSection />
+		</ScrollSection>
 
-	<ScrollSection id="prologue">
-		<TextBlock
-			prose
-			heading={prologueContent.title}
-			lines={prologueContent.paragraphLines}
-			pulseLast={true}
-		/>
-	</ScrollSection>
+		<div class="section-gap"></div>
 
-	<div class="section-gap"></div>
+		<ScrollSection id="prologue">
+			<TextBlock
+				prose
+				heading={prologueContent.title}
+				lines={prologueContent.paragraphLines}
+				pulseLast={true}
+			/>
+		</ScrollSection>
 
-	<ScrollSection id="overview">
-		<TextBlock prose heading={overviewBlocks[0]!.heading} lines={[overviewBlocks[0]!.body]} />
-	</ScrollSection>
+		<div class="section-gap"></div>
 
-	<div class="section-gap"></div>
+		<ScrollSection id="overview">
+			<TextBlock prose heading={overviewBlocks[0]!.heading} lines={[overviewBlocks[0]!.body]} />
+		</ScrollSection>
 
-	<ScrollSection id="members">
-		<MembersSection />
-	</ScrollSection>
+		<div class="section-gap"></div>
 
-	<div class="section-gap"></div>
+		<ScrollSection id="members">
+			<MembersSection />
+		</ScrollSection>
 
-	<ScrollSection id="worldview">
-		<WorldviewSection />
-	</ScrollSection>
+		<div class="section-gap"></div>
 
-	<div class="section-gap"></div>
+		<ScrollSection id="worldview">
+			<WorldviewSection />
+		</ScrollSection>
 
-	<ScrollSection id="works">
-		<WorksSection />
-	</ScrollSection>
+		<div class="section-gap"></div>
 
-	<div class="section-gap"></div>
+		<ScrollSection id="works">
+			<WorksSection />
+		</ScrollSection>
 
-	<ScrollSection id="footer" height="100dvh">
-		<FooterLinks />
-	</ScrollSection>
+		<div class="section-gap"></div>
+
+		<ScrollSection id="footer" height="100dvh">
+			<FooterLinks />
+		</ScrollSection>
+	</div>
 </main>
 
 <style>

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte'
-	import { page } from '$app/stores'
 	import { gsap } from 'gsap'
 	import { assetManifest } from '$lib/data/content'
 	import { assetLoader } from '$lib/states/assets.svelte'
@@ -32,8 +31,6 @@
 	// before we measure scrollHeight, eliminating the short→long race
 	// condition and the long→short inertia-lag gap.
 	$effect(() => {
-		const _path = $page.url.pathname // reactive dependency
-
 		// Guard: onMount has not run yet on the very first effect execution.
 		// The initial position is handled inside onMount directly.
 		if (!container || !snapParallax) return

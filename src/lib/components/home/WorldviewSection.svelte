@@ -10,7 +10,13 @@
 	let isVisible = $state(false)
 
 	onMount(() =>
-		observe(sectionEl, entry => { isVisible = entry.isIntersecting }, { threshold: 0.1 })
+		observe(
+			sectionEl,
+			entry => {
+				isVisible = entry.isIntersecting
+			},
+			{ threshold: 0.1 }
+		)
 	)
 </script>
 
@@ -29,13 +35,13 @@
 			<span
 				class="stage__unavailable-text"
 				class:is-animating={isVisible}
-				data-text="UNDER PROGRAMMING..."
-			>UNDER PROGRAMMING...</span>
+				data-text="UNDER PROGRAMMING...">UNDER PROGRAMMING...</span
+			>
 		</div>
 	</div>
 
 	<div class="worldview__footer">
-		<HoverButton label={worldviewConfig.buttonLabel} href={worldviewConfig.buttonHref} disabled />
+		<HoverButton label={worldviewConfig.buttonLabel} href={worldviewConfig.buttonHref} />
 	</div>
 </section>
 
@@ -120,28 +126,85 @@
 	}
 
 	@keyframes glitch-slice-1 {
-		0%   { clip-path: inset(20% 0 80% 0); transform: translate3d(-5px,  2px, 0); }
-		10%  { clip-path: inset(60% 0 10% 0); transform: translate3d( 4px, -2px, 0); }
-		20%  { clip-path: inset(40% 0 50% 0); transform: translate3d(-4px,  3px, 0); }
-		30%  { clip-path: inset(80% 0  5% 0); transform: translate3d( 5px, -4px, 0); }
-		40%  { clip-path: inset(10% 0 70% 0); transform: translate3d(-3px,  1px, 0); }
-		50%  { clip-path: inset(30% 0 50% 0); transform: translate3d( 3px, -2px, 0); }
-		60%  { clip-path: inset(70% 0 20% 0); transform: translate3d(-5px,  2px, 0); }
-		70%  { clip-path: inset(15% 0 65% 0); transform: translate3d( 4px, -1px, 0); }
-		80%  { clip-path: inset(50% 0 30% 0); transform: translate3d(-4px,  3px, 0); }
-		90%  { clip-path: inset( 5% 0 80% 0); transform: translate3d( 2px, -4px, 0); }
-		100% { clip-path: inset(45% 0 45% 0); transform: translate3d(-3px,  2px, 0); }
+		0% {
+			clip-path: inset(20% 0 80% 0);
+			transform: translate3d(-5px, 2px, 0);
+		}
+		10% {
+			clip-path: inset(60% 0 10% 0);
+			transform: translate3d(4px, -2px, 0);
+		}
+		20% {
+			clip-path: inset(40% 0 50% 0);
+			transform: translate3d(-4px, 3px, 0);
+		}
+		30% {
+			clip-path: inset(80% 0 5% 0);
+			transform: translate3d(5px, -4px, 0);
+		}
+		40% {
+			clip-path: inset(10% 0 70% 0);
+			transform: translate3d(-3px, 1px, 0);
+		}
+		50% {
+			clip-path: inset(30% 0 50% 0);
+			transform: translate3d(3px, -2px, 0);
+		}
+		60% {
+			clip-path: inset(70% 0 20% 0);
+			transform: translate3d(-5px, 2px, 0);
+		}
+		70% {
+			clip-path: inset(15% 0 65% 0);
+			transform: translate3d(4px, -1px, 0);
+		}
+		80% {
+			clip-path: inset(50% 0 30% 0);
+			transform: translate3d(-4px, 3px, 0);
+		}
+		90% {
+			clip-path: inset(5% 0 80% 0);
+			transform: translate3d(2px, -4px, 0);
+		}
+		100% {
+			clip-path: inset(45% 0 45% 0);
+			transform: translate3d(-3px, 2px, 0);
+		}
 	}
 
 	@keyframes glitch-slice-2 {
-		0%   { clip-path: inset(10% 0 60% 0); transform: translate3d( 4px, -2px, 0); }
-		15%  { clip-path: inset(30% 0 20% 0); transform: translate3d(-5px,  3px, 0); }
-		30%  { clip-path: inset(70% 0 10% 0); transform: translate3d( 3px, -4px, 0); }
-		45%  { clip-path: inset(20% 0 50% 0); transform: translate3d(-4px,  1px, 0); }
-		60%  { clip-path: inset(50% 0 30% 0); transform: translate3d( 5px, -3px, 0); }
-		75%  { clip-path: inset( 5% 0 80% 0); transform: translate3d(-3px,  2px, 0); }
-		90%  { clip-path: inset(80% 0  5% 0); transform: translate3d( 4px, -1px, 0); }
-		100% { clip-path: inset(40% 0 40% 0); transform: translate3d(-5px,  3px, 0); }
+		0% {
+			clip-path: inset(10% 0 60% 0);
+			transform: translate3d(4px, -2px, 0);
+		}
+		15% {
+			clip-path: inset(30% 0 20% 0);
+			transform: translate3d(-5px, 3px, 0);
+		}
+		30% {
+			clip-path: inset(70% 0 10% 0);
+			transform: translate3d(3px, -4px, 0);
+		}
+		45% {
+			clip-path: inset(20% 0 50% 0);
+			transform: translate3d(-4px, 1px, 0);
+		}
+		60% {
+			clip-path: inset(50% 0 30% 0);
+			transform: translate3d(5px, -3px, 0);
+		}
+		75% {
+			clip-path: inset(5% 0 80% 0);
+			transform: translate3d(-3px, 2px, 0);
+		}
+		90% {
+			clip-path: inset(80% 0 5% 0);
+			transform: translate3d(4px, -1px, 0);
+		}
+		100% {
+			clip-path: inset(40% 0 40% 0);
+			transform: translate3d(-5px, 3px, 0);
+		}
 	}
 
 	/* ── Footer ────────────────────────────────────── */

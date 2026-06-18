@@ -275,7 +275,7 @@
 
 	<!-- Dots indicator -->
 	<div class="works__dots" role="tablist" aria-label="作品ページ">
-		{#each worksItems as _, i}
+		{#each worksItems as _, i (i)}
 			<button
 				type="button"
 				role="tab"
